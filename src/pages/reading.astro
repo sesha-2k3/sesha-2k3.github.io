@@ -1,0 +1,209 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+
+// Load every reading entry, newest first, with its rendered note.
+const entries = (await getCollection("reading")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const items = await Promise.all(
+  entries.map(async entry => ({ entry, Content: (await render(entry)).Content }))
+);
+
+// Books currently in progress get their own section at the top.
+const currentBooks = items.filter(
+  ({ entry }) => entry.data.type === "book" && entry.data.status === "reading"
+);
+const logItems = items.filter(
+  ({ entry }) => !(entry.data.type === "book" && entry.data.status === "reading")
+);
+
+// Dates are stored as plain days, so format them in UTC to avoid off-by-one shifts.
+const monthKey = (d: Date) =>
+  `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+const monthLabel = (d: Date) =>
+  d.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const dayLabel = (d: Date) =>
+  d.toLocaleString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+
+const months = new Map<string, { label: string; count: number }>();
+for (const { entry } of logItems) {
+  const key = monthKey(entry.data.date);
+  const existing = months.get(key);
+  if (existing) existing.count++;
+  else months.set(key, { label: monthLabel(entry.data.date), count: 1 });
+}
+const latestMonth = months.keys().next().value ?? "";
+---
+
+<Layout
+  title={`Reading Log | ${config.site.title}`}
+  description="Things I read: articles, papers, threads, and books, with a short note on why each one stuck."
+>
+  <Header />
+  <Breadcrumb />
+  <Main pageTitle="Reading Log" class="app-prose">
+    <p>
+      Things I read on the internet and off it: articles, papers, threads, and
+      books, with a short note on why each one stuck. Pick a month to browse,
+      or hit <strong>Draw one</strong> for a random pick from that month.
+    </p>
+
+    {
+      currentBooks.length > 0 && (
+        <section>
+          <h2>Currently reading</h2>
+          {currentBooks.map(({ entry, Content }) => (
+            <article class="reading-item">
+              <p class="reading-meta">
+                By {entry.data.author} · Book · Started {dayLabel(entry.data.date)}
+              </p>
+              <h3>
+                {entry.data.url ? (
+                  <a href={entry.data.url} target="_blank" rel="noopener noreferrer">
+                    {entry.data.title}
+                  </a>
+                ) : (
+                  entry.data.title
+                )}
+              </h3>
+              {entry.data.image && (
+                <img src={entry.data.image} alt="" loading="lazy" class="reading-cover" />
+              )}
+              <Content />
+            </article>
+          ))}
+        </section>
+      )
+    }
+
+    {
+      months.size === 0 ? (
+        <p>Nothing logged yet.</p>
+      ) : (
+        <section>
+          <div class="reading-controls">
+            <label>
+              Month{" "}
+              <select id="reading-month">
+                {[...months].map(([key, { label, count }]) => (
+                  <option value={key} selected={key === latestMonth}>
+                    {label} ({count})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button id="reading-draw" type="button">Draw one</button>
+            <button id="reading-all" type="button" hidden>Show all</button>
+          </div>
+
+          <div id="reading-list">
+            {logItems.map(({ entry, Content }) => (
+              <article
+                class="reading-item"
+                data-month={monthKey(entry.data.date)}
+                hidden={monthKey(entry.data.date) !== latestMonth}
+              >
+                <p class="reading-meta">
+                  By {entry.data.author} · {entry.data.type} · {dayLabel(entry.data.date)}
+                  {entry.data.url && (
+                    <>
+                      {" · "}
+                      <a href={entry.data.url} target="_blank" rel="noopener noreferrer">
+                        Open ↗
+                      </a>
+                    </>
+                  )}
+                </p>
+                <h3>{entry.data.title}</h3>
+                {entry.data.image && (
+                  <img src={entry.data.image} alt="" loading="lazy" class="reading-cover" />
+                )}
+                <Content />
+              </article>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </Main>
+  <Footer />
+</Layout>
+
+<style>
+  .reading-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  .reading-controls select,
+  .reading-controls button {
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .reading-controls select option {
+    color: initial;
+  }
+  .reading-item {
+    padding: 1rem 0;
+    border-bottom: 1px dashed currentColor;
+  }
+  .reading-item h3 {
+    margin-top: 0.25rem;
+  }
+  .reading-meta {
+    margin: 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+  .reading-cover {
+    max-width: 100%;
+    border-radius: 0.5rem;
+  }
+</style>
+
+<script>
+  // AstroPaper uses view transitions, so set up on every page load, not just the first.
+  function initReadingLog() {
+    const select = document.getElementById("reading-month") as HTMLSelectElement | null;
+    const drawBtn = document.getElementById("reading-draw");
+    const allBtn = document.getElementById("reading-all");
+    if (!select || !drawBtn || !allBtn) return;
+
+    const items = () =>
+      Array.from(document.querySelectorAll<HTMLElement>("#reading-list .reading-item"));
+
+    const showMonth = () => {
+      items().forEach(el => (el.hidden = el.dataset.month !== select.value));
+      allBtn.hidden = true;
+    };
+
+    const drawOne = () => {
+      const inMonth = items().filter(el => el.dataset.month === select.value);
+      if (inMonth.length === 0) return;
+      const pick = inMonth[Math.floor(Math.random() * inMonth.length)];
+      items().forEach(el => (el.hidden = el !== pick));
+      allBtn.hidden = false;
+      pick.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    select.onchange = showMonth;
+    drawBtn.onclick = drawOne;
+    allBtn.onclick = showMonth;
+  }
+
+  document.addEventListener("astro:page-load", initReadingLog);
+</script>

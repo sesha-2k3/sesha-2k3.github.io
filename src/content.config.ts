@@ -34,4 +34,20 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { posts, pages };
+const reading = defineCollection({
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/reading" }),
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    type: z.enum([
+      "article", "blog", "paper", "tweet", "thread",
+      "newsletter", "video", "podcast", "book",
+    ]),
+    url: z.string().url().optional(),
+    date: z.coerce.date(),
+    image: z.string().optional(),
+    status: z.enum(["reading", "finished"]).optional(), 
+  }),
+});
+
+export const collections = { posts, pages, reading };
