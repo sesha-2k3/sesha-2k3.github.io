@@ -1,5 +1,5 @@
 ---
-title: "Title of the book you're reading"
+title: "Will add"
 author: "Book author"
 type: book
 status: reading

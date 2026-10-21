@@ -1,5 +1,5 @@
 ---
-title: "Title of the article"
+title: "Will add"
 author: "Author or publication"
 type: article
 url: "https://example.com/the-article"
