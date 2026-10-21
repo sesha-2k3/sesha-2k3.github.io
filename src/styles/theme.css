@@ -10,25 +10,25 @@
   --font-app: var(--font-google-sans-code);
 }
 
-/* Light theme values */
+/* Light theme values: Nord "Snow Storm" */
 :root,
 [data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #006cac;
-  --accent-foreground: #ffffff;
-  --muted: #e6e6e6;
-  --muted-foreground: #6b7280;
-  --border: #ece9e9;
+  --background: #eceff4;
+  --foreground: #2e3440;
+  --accent: #4c6a93;
+  --accent-foreground: #eceff4;
+  --muted: #e5e9f0;
+  --muted-foreground: #4c566a;
+  --border: #d8dee9;
 }
 
-/* Dark theme values */
+/* Dark theme values: Nord "Polar Night" */
 [data-theme="dark"] {
-  --background: #212737;
-  --foreground: #eaedf3;
-  --accent: #ff6b01;
-  --accent-foreground: #ffffff;
-  --muted: #343f60;
-  --muted-foreground: #afb9ca;
-  --border: #ab4b08;
+  --background: #2e3440;
+  --foreground: #d8dee9;
+  --accent: #88c0d0;
+  --accent-foreground: #2e3440;
+  --muted: #3b4252;
+  --muted-foreground: #a3adbf;
+  --border: #4c566a;
 }
