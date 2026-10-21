@@ -221,4 +221,4 @@ Full code: [`fixed_recursive_scratch.py`](https://github.com/sesha-2k3/rag-scrat
 - Overlap protects facts that land on a boundary, at the cost of some redundancy.
 - Always print your chunks, including the length of each one.
 
-**Next:** Part 2: Embeddings, tokens, and metadata (coming soon)
+**Next:** [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/)
