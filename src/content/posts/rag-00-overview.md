@@ -22,7 +22,7 @@ This series is my attempt to answer those questions properly, by building each p
 |---|---|---|
 | 1 | [Chunking](/posts/rag-01-chunking/) | Why we split documents, five chunking strategies, overlap, and choosing a chunk size |
 | 2 | [Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) | Why characters aren't tokens, silent truncation, and what metadata to store |
-| 3 | The query-time flow | What happens between a user's question and the LLM's answer, and designing for "no match" |
+| 3 | [The query-time flow](/posts/rag-03-query-flow/) | What happens between a user's question and the LLM's answer, and designing for "no match" |
 | 4 | Evaluating retrieval | Precision, recall, MRR, nDCG, test sets, LLM-as-judge, and whether 82% vs 78% is significant |
 | 5 | BM25 | Why keyword search still matters, the formula, and a worked example by hand |
 | 6 | Advanced retrieval | Hybrid search, Reciprocal Rank Fusion, rerankers, query transformation, and more |

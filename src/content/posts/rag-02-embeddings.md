@@ -12,7 +12,7 @@ tags:
 description: "Why your user's question can silently vanish before retrieval, why chunk sizes belong in tokens, and what metadata does that embeddings can't."
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · **Part 2: Embeddings, tokens, and metadata** · Part 3: The query-time flow (coming soon)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · **Part 2: Embeddings, tokens, and metadata** · [Part 3: The query-time flow](/posts/rag-03-query-flow/)
 
 ## The question that disappeared
 
@@ -202,4 +202,4 @@ Full code: [`token_aware_scratch.py`](https://github.com/sesha-2k3/rag-scratch-t
 
 Want to test yourself? The repo's [chunking and embedding quiz](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/part-02/quizzes/01-chunking-embedding.md) covers Parts 1 and 2.
 
-**Next:** Part 3: The query-time flow (coming soon)
+**Next:** [Part 3: The query-time flow](/posts/rag-03-query-flow/)
