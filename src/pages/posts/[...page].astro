@@ -20,7 +20,6 @@ type SeriesRow = {
   href: string;
   date: number;
   description: string;
-  category: string;
   tags: string[];
   parts: number;
 };
@@ -28,7 +27,6 @@ type PostRow = {
   kind: "post";
   title: string;
   date: number;
-  category: string;
   tags: string[];
   post: CollectionEntry<"posts">;
 };
@@ -53,7 +51,6 @@ for (const series of allSeries) {
     href: `/series/${series.id}/`,
     date: Math.max(...parts.map(p => new Date(p.data.pubDatetime).getTime())),
     description: series.data.description,
-    category: series.data.category ?? "",
     tags: [...new Set(parts.flatMap(p => p.data.tags ?? []))],
     parts: parts.length,
   });
@@ -64,7 +61,6 @@ const postRows: PostRow[] = posts.map((post): PostRow => ({
   kind: "post",
   title: post.data.title,
   date: new Date(post.data.pubDatetime).getTime(),
-  category: post.data.category ?? "",
   tags: post.data.tags ?? [],
   post,
 }));
@@ -72,8 +68,7 @@ const postRows: PostRow[] = posts.map((post): PostRow => ({
 // Each row renders as its own <ul>, so the theme's Card component (an <li>) is reused as-is.
 const items: Row[] = [...seriesRows, ...postRows].sort((a, b) => b.date - a.date);
 
-// Filter options are built from whatever the content uses.
-const categories = [...new Set(items.map(i => i.category).filter(c => c))].sort();
+// Tag options are built from whatever tags the content uses.
 const tags = [...new Set(items.flatMap(i => i.tags))].sort();
 
 const formatDate = (ms: number) =>
@@ -96,38 +91,35 @@ const formatDate = (ms: number) =>
         <button type="button" class="pill" data-type="series" aria-pressed="false">Series</button>
       </div>
 
-      <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
-        {
-          categories.length > 0 && (
-            <label class="flex items-center gap-2">
-              Category
-              <select id="filter-category" class="control">
-                <option value="">All</option>
-                {categories.map(c => <option value={c}>{c}</option>)}
-              </select>
-            </label>
-          )
-        }
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
         {
           tags.length > 0 && (
-            <label class="flex items-center gap-2">
-              Tag
-              <select id="filter-tag" class="control">
-                <option value="">All</option>
-                {tags.map(t => <option value={t}>{t}</option>)}
-              </select>
-            </label>
+            <button type="button" class="pill toggle" data-panel="tag-panel" aria-expanded="false" aria-controls="tag-panel">
+              Tag: <span id="tag-label">All</span> <span aria-hidden="true">▾</span>
+            </button>
           )
         }
-        <label class="flex items-center gap-2">
-          Sort
-          <select id="sort-by" class="control">
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="title">Title A–Z</option>
-          </select>
-        </label>
-        <span id="posts-count" class="text-muted-foreground"></span>
+        <button type="button" class="pill toggle" data-panel="sort-panel" aria-expanded="false" aria-controls="sort-panel">
+          Sort: <span id="sort-label">Newest first</span> <span aria-hidden="true">▾</span>
+        </button>
+        <span id="posts-count" class="text-muted-foreground ms-2"></span>
+      </div>
+
+      {
+        tags.length > 0 && (
+          <div id="tag-panel" class="panel mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by tag" hidden>
+            <button type="button" class="pill" data-tag="" aria-pressed="true">All</button>
+            {tags.map(t => (
+              <button type="button" class="pill" data-tag={t} aria-pressed="false">{t}</button>
+            ))}
+          </div>
+        )
+      }
+
+      <div id="sort-panel" class="panel mt-3 flex flex-wrap gap-2" role="group" aria-label="Sort" hidden>
+        <button type="button" class="pill" data-sort="newest" aria-pressed="true">Newest first</button>
+        <button type="button" class="pill" data-sort="oldest" aria-pressed="false">Oldest first</button>
+        <button type="button" class="pill" data-sort="title" aria-pressed="false">Title A–Z</button>
       </div>
 
       <div id="posts-list" class="mt-4">
@@ -136,7 +128,6 @@ const formatDate = (ms: number) =>
             item.kind === "post" ? (
               <ul
                 data-type="post"
-                data-category={item.category}
                 data-tags={item.tags.join("|")}
                 data-date={item.date}
                 data-title={item.title.toLowerCase()}
@@ -146,7 +137,6 @@ const formatDate = (ms: number) =>
             ) : (
               <ul
                 data-type="series"
-                data-category={item.category}
                 data-tags={item.tags.join("|")}
                 data-date={item.date}
                 data-title={item.title.toLowerCase()}
@@ -161,7 +151,6 @@ const formatDate = (ms: number) =>
                   <p class="text-muted-foreground my-1 text-sm">
                     <span class="badge">Series</span> {item.parts} parts · Updated{" "}
                     {formatDate(item.date)}
-                    {item.category && <> · {item.category}</>}
                   </p>
                   <p>{item.description}</p>
                 </li>
@@ -186,16 +175,13 @@ const formatDate = (ms: number) =>
     padding: 0.3rem 1rem;
     font-size: 0.9rem;
   }
-  .pill[aria-pressed="true"] {
+  .pill[aria-pressed="true"],
+  .pill[aria-expanded="true"] {
     border-color: var(--accent);
     background: var(--muted);
   }
-  .control {
-    border: 1px solid var(--border);
-    border-radius: 0.375rem;
-    padding: 0.2rem 0.5rem;
-    background: var(--background);
-    color: var(--foreground);
+  .panel[hidden] {
+    display: none;
   }
   .badge {
     border: 1px solid var(--accent);
@@ -213,54 +199,68 @@ const formatDate = (ms: number) =>
     const list = document.getElementById("posts-list");
     if (!root || !list) return;
 
-    const items = Array.from(list.children) as HTMLElement[]; // one <ul> per row
+    const rows = Array.from(list.children) as HTMLElement[]; // one <ul> per row
     const typeButtons = Array.from(root.querySelectorAll<HTMLElement>("button[data-type]"));
-    const category = root.querySelector<HTMLSelectElement>("#filter-category");
-    const tag = root.querySelector<HTMLSelectElement>("#filter-tag");
-    const sort = root.querySelector<HTMLSelectElement>("#sort-by");
+    const tagButtons = Array.from(root.querySelectorAll<HTMLElement>("button[data-tag]"));
+    const sortButtons = Array.from(root.querySelectorAll<HTMLElement>("button[data-sort]"));
+    const toggles = Array.from(root.querySelectorAll<HTMLElement>("button[data-panel]"));
+    const tagLabel = root.querySelector<HTMLElement>("#tag-label");
+    const sortLabel = root.querySelector<HTMLElement>("#sort-label");
     const count = root.querySelector<HTMLElement>("#posts-count");
     const empty = root.querySelector<HTMLElement>("#posts-empty");
 
     let type = "all";
+    let tag = "";
+    let sort = "newest";
+
+    const press = (buttons: HTMLElement[], isActive: (b: HTMLElement) => boolean) =>
+      buttons.forEach(b => b.setAttribute("aria-pressed", String(isActive(b))));
 
     const apply = () => {
-      const cat = category?.value ?? "";
-      const tg = tag?.value ?? "";
-      const order = sort?.value ?? "newest";
-
-      const sorted = [...items].sort((a, b) => {
-        if (order === "title") return (a.dataset.title ?? "").localeCompare(b.dataset.title ?? "");
+      const sorted = [...rows].sort((a, b) => {
+        if (sort === "title") return (a.dataset.title ?? "").localeCompare(b.dataset.title ?? "");
         const diff = Number(a.dataset.date) - Number(b.dataset.date);
-        return order === "oldest" ? diff : -diff;
+        return sort === "oldest" ? diff : -diff;
       });
 
       let visible = 0;
       for (const row of sorted) {
         const match =
           (type === "all" || row.dataset.type === type) &&
-          (!cat || row.dataset.category === cat) &&
-          (!tg || (row.dataset.tags ?? "").split("|").includes(tg));
+          (!tag || (row.dataset.tags ?? "").split("|").includes(tag));
         row.hidden = !match;
         if (match) visible++;
         list.appendChild(row); // re-appending in sorted order moves the element
       }
 
-      typeButtons.forEach(btn =>
-        btn.setAttribute("aria-pressed", String(btn.dataset.type === type))
-      );
-      if (count) count.textContent = `${visible} of ${items.length}`;
+      press(typeButtons, b => b.dataset.type === type);
+      press(tagButtons, b => (b.dataset.tag ?? "") === tag);
+      press(sortButtons, b => b.dataset.sort === sort);
+      if (tagLabel) tagLabel.textContent = tag || "All";
+      if (sortLabel) {
+        sortLabel.textContent =
+          sortButtons.find(b => b.dataset.sort === sort)?.textContent ?? "Newest first";
+      }
+      if (count) count.textContent = `${visible} of ${rows.length}`;
       if (empty) empty.hidden = visible > 0;
     };
 
-    typeButtons.forEach(btn => {
-      btn.onclick = () => {
-        type = btn.dataset.type ?? "all";
-        apply();
+    // Opening one panel closes the other.
+    toggles.forEach(toggle => {
+      toggle.onclick = () => {
+        const opening = toggle.getAttribute("aria-expanded") !== "true";
+        toggles.forEach(t => {
+          const panel = document.getElementById(t.dataset.panel ?? "");
+          const open = opening && t === toggle;
+          t.setAttribute("aria-expanded", String(open));
+          if (panel) panel.hidden = !open;
+        });
       };
     });
-    [category, tag, sort].forEach(control => {
-      if (control) control.onchange = apply;
-    });
+
+    typeButtons.forEach(b => (b.onclick = () => { type = b.dataset.type ?? "all"; apply(); }));
+    tagButtons.forEach(b => (b.onclick = () => { tag = b.dataset.tag ?? ""; apply(); }));
+    sortButtons.forEach(b => (b.onclick = () => { sort = b.dataset.sort ?? "newest"; apply(); }));
 
     apply();
   }
