@@ -12,7 +12,7 @@ tags:
 description: "What actually happens between a user's question and the LLM's answer, why vector search always returns something, and how to design for 'no match'."
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · **Part 3: The query-time flow** · Part 4: Evaluating retrieval (coming soon)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · **Part 3: The query-time flow** · [Part 4: Evaluating retrieval](/posts/rag-04-evaluation/)
 
 ## Your vector database always has an answer
 
@@ -249,4 +249,4 @@ Full code: [`query_pipeline_scratch.py`](https://github.com/sesha-2k3/rag-scratc
 
 Want to test yourself? The repo's [chunking and embedding quiz](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/part-03/quizzes/01-chunking-embedding.md) covers Parts 1 through 3.
 
-**Next:** Part 4: Evaluating retrieval (coming soon)
+**Next:** [Part 4: Evaluating retrieval](/posts/rag-04-evaluation/)
