@@ -15,7 +15,7 @@ series: rag-from-scratch
 seriesOrder: 5
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · [Part 4: Evaluating retrieval](/posts/rag-04-evaluation/) · **Part 5: BM25** · Part 6: Advanced retrieval (coming soon)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · [Part 4: Evaluating retrieval](/posts/rag-04-evaluation/) · **Part 5: BM25** · **Next:** [Part 6: Advanced retrieval](/posts/rag-06-advanced-retrieval/)
 
 ## E-4012 is not E-4021
 
@@ -247,4 +247,4 @@ Full code: [`bm25_scratch.py`](https://github.com/sesha-2k3/rag-scratch-to-speci
 
 Want to test yourself? The repo's [advanced retrieval quiz](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/part-05/quizzes/03-advanced-retrieval.md) covers this part and the next.
 
-**Next:** Part 6: Advanced retrieval (coming soon)
+**Next:** [Part 6: Advanced retrieval](/posts/rag-06-advanced-retrieval/)

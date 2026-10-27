@@ -15,7 +15,7 @@ series: rag-from-scratch
 seriesOrder: 4
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · **Part 4: Evaluating retrieval** · [Part 5: BM25](/posts/rag-05-bm25/)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · **Part 4: Evaluating retrieval** · **Next:** [Part 5: BM25](/posts/rag-05-bm25/)
 
 ## Is 82% better than 78%?
 

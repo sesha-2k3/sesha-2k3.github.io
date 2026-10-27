@@ -14,7 +14,7 @@ series: rag-from-scratch
 seriesOrder: 2
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · **Part 2: Embeddings, tokens, and metadata** · [Part 3: The query-time flow](/posts/rag-03-query-flow/)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · **Part 2: Embeddings, tokens, and metadata** · **Next:** [Part 3: The query-time flow](/posts/rag-03-query-flow/)
 
 ## The question that disappeared
 

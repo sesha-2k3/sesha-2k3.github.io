@@ -12,7 +12,7 @@ series: rag-from-scratch
 seriesOrder: 1
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · **Part 1: Chunking** · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · **Part 1: Chunking** · **Next:** [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/)
 
 ## The 47-character chunk
 

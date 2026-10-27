@@ -27,7 +27,7 @@ This series is my attempt to answer those questions properly, by building each p
 | 3 | [The query-time flow](/posts/rag-03-query-flow/) | What happens between a user's question and the LLM's answer, and designing for "no match" |
 | 4 | [Evaluating retrieval](/posts/rag-04-evaluation/) | Precision, recall, MRR, nDCG, test sets, LLM-as-judge, and whether 82% vs 78% is significant |
 | 5 | [BM25](/posts/rag-05-bm25/) | Why keyword search still matters, the formula, and a worked example by hand |
-| 6 | Advanced retrieval | Hybrid search, Reciprocal Rank Fusion, rerankers, query transformation, and more |
+| 6 | [Advanced retrieval](/posts/rag-06-advanced-retrieval/) | Hybrid search, Reciprocal Rank Fusion, rerankers, query transformation, and more |
 
 Parts without links are coming soon.
 
