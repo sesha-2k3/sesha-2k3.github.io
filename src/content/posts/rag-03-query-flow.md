@@ -10,6 +10,8 @@ tags:
   - rag
   - llm
 description: "What actually happens between a user's question and the LLM's answer, why vector search always returns something, and how to design for 'no match'."
+series: rag-from-scratch
+seriesOrder: 3
 ---
 
 **RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · **Part 3: The query-time flow** · [Part 4: Evaluating retrieval](/posts/rag-04-evaluation/)

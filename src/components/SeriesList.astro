@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import config from "@/config";
+
+export interface Props {
+  showHeading?: boolean;
+}
+const { showHeading = true } = Astro.props;
+
+// Published posts only: no drafts, nothing scheduled for the future.
+const now = Date.now();
+const posts = await getCollection(
+  "posts",
+  ({ data }) => !data.draft && new Date(data.pubDatetime).getTime() <= now
+);
+
+// One entry per series that has at least one published part,
+// most recently updated series first.
+const items = (await getCollection("series", ({ data }) => !data.draft))
+  .map(series => {
+    const parts = posts.filter(p => p.data.series === series.id);
+    const latest = Math.max(...parts.map(p => new Date(p.data.pubDatetime).getTime()));
+    return { series, count: parts.length, latest };
+  })
+  .filter(item => item.count > 0)
+  .sort((a, b) => b.latest - a.latest);
+
+const formatDate = (ms: number) =>
+  new Date(ms).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: config.site.timezone,
+  });
+---
+
+{
+  items.length > 0 && (
+    <section class="mb-10">
+      {showHeading && <h2 class="mb-2 text-xl font-semibold">Series</h2>}
+      <ul>
+        {items.map(({ series, count, latest }) => (
+          <li class="my-6">
+            <a
+              href={`/series/${series.id}/`}
+              class="text-accent inline-block text-lg font-medium decoration-dashed underline-offset-4 hover:underline focus-visible:no-underline"
+            >
+              {series.data.title}
+            </a>
+            <p class="text-muted-foreground my-1 text-sm">
+              {count} {count === 1 ? "part" : "parts"} · Updated {formatDate(latest)}
+            </p>
+            <p>{series.data.description}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

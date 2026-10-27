@@ -21,6 +21,9 @@ const posts = defineCollection({
       canonicalURL: z.string().optional(),
       hideEditPost: z.boolean().optional(),
       timezone: z.string().optional(),
+      series: z.string().optional(),
+      seriesOrder: z.number().optional(),
+      category: z.string().optional(),
     }),
 });
 
@@ -31,6 +34,16 @@ const pages = defineCollection({
     description: z.string().optional(),
     ogImage: z.string().optional(),
     canonicalURL: z.string().optional(),
+  }),
+});
+
+const series = defineCollection({
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/series" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    draft: z.boolean().optional(),
+    category: z.string().optional(),
   }),
 });
 
@@ -50,4 +63,4 @@ const reading = defineCollection({
   }),
 });
 
-export const collections = { posts, pages, reading };
+export const collections = { posts, pages, reading, series };

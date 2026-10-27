@@ -8,6 +8,8 @@ tags:
   - rag
   - llm
 description: "A six-part series on Retrieval-Augmented Generation, built from first principles with runnable code: chunking, embeddings, the query flow, evaluation, BM25, and advanced retrieval."
+series: rag-from-scratch
+seriesOrder: 0  
 ---
 
 **RAG from Scratch series:** **Part 0: Overview** · [Part 1: Chunking](/posts/rag-01-chunking/)

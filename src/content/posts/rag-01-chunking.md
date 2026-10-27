@@ -8,6 +8,8 @@ tags:
   - rag
   - llm
 description: "Why a '50-character' chunk turned out to be 47, and how fixed-size and recursive chunking actually work, implemented from scratch in Python."
+series: rag-from-scratch
+seriesOrder: 1
 ---
 
 **RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · **Part 1: Chunking** · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/)

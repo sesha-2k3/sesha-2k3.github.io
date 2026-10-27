@@ -1,40 +1,269 @@
 ---
-import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import Main from "@/components/Main.astro";
-import Card from "@/components/Card.astro";
 import Footer from "@/components/Footer.astro";
-import Pagination from "@/components/Pagination.astro";
-import { getSortedPosts } from "@/utils/getSortedPosts";
-import { useTranslations } from "@/i18n";
+import Card from "@/components/Card.astro";
 import config from "@/config";
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getCollection("posts", ({ data }) => !data.draft);
-  return paginate(getSortedPosts(posts), { pageSize: config.posts.perPage });
-}) satisfies GetStaticPaths;
+// One page at /posts/. Filtering and sorting happen in the browser,
+// so every item has to be on the same page.
+export function getStaticPaths() {
+  return [{ params: { page: undefined } }];
+}
 
-const { page } = Astro.props;
+type SeriesRow = {
+  kind: "series";
+  title: string;
+  href: string;
+  date: number;
+  description: string;
+  category: string;
+  tags: string[];
+  parts: number;
+};
+type PostRow = {
+  kind: "post";
+  title: string;
+  date: number;
+  category: string;
+  tags: string[];
+  post: CollectionEntry<"posts">;
+};
+type Row = SeriesRow | PostRow;
 
-const locale = Astro.currentLocale ?? config.site.lang;
-const t = useTranslations(locale);
+// Published posts only: no drafts, nothing scheduled for the future.
+const now = Date.now();
+const posts = await getCollection(
+  "posts",
+  ({ data }) => !data.draft && new Date(data.pubDatetime).getTime() <= now
+);
+const allSeries = await getCollection("series", ({ data }) => !data.draft);
+
+// Each series becomes one row, dated by its most recent part.
+const seriesRows: SeriesRow[] = [];
+for (const series of allSeries) {
+  const parts = posts.filter(p => p.data.series === series.id);
+  if (parts.length === 0) continue;
+  seriesRows.push({
+    kind: "series",
+    title: series.data.title,
+    href: `/series/${series.id}/`,
+    date: Math.max(...parts.map(p => new Date(p.data.pubDatetime).getTime())),
+    description: series.data.description,
+    category: series.data.category ?? "",
+    tags: [...new Set(parts.flatMap(p => p.data.tags ?? []))],
+    parts: parts.length,
+  });
+}
+
+// Every published post gets a row, including posts that belong to a series.
+const postRows: PostRow[] = posts.map((post): PostRow => ({
+  kind: "post",
+  title: post.data.title,
+  date: new Date(post.data.pubDatetime).getTime(),
+  category: post.data.category ?? "",
+  tags: post.data.tags ?? [],
+  post,
+}));
+
+// Each row renders as its own <ul>, so the theme's Card component (an <li>) is reused as-is.
+const items: Row[] = [...seriesRows, ...postRows].sort((a, b) => b.date - a.date);
+
+// Filter options are built from whatever the content uses.
+const categories = [...new Set(items.map(i => i.category).filter(c => c))].sort();
+const tags = [...new Set(items.flatMap(i => i.tags))].sort();
+
+const formatDate = (ms: number) =>
+  new Date(ms).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: config.site.timezone,
+  });
 ---
 
-<Layout title={`${t.pages.postsTitle} | ${config.site.title}`}>
+<Layout title={`Posts | ${config.site.title}`} description="All the articles I've posted.">
   <Header />
-
   <Breadcrumb />
+  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+    <div id="posts-index">
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Show">
+        <button type="button" class="pill" data-type="all" aria-pressed="true">All</button>
+        <button type="button" class="pill" data-type="post" aria-pressed="false">Posts</button>
+        <button type="button" class="pill" data-type="series" aria-pressed="false">Series</button>
+      </div>
 
-  <Main pageTitle={t.pages.postsTitle} pageDesc={t.pages.postsDesc}>
-    <ul>
-      {page.data.map(data => <Card {...data} />)}
-    </ul>
+      <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
+        {
+          categories.length > 0 && (
+            <label class="flex items-center gap-2">
+              Category
+              <select id="filter-category" class="control">
+                <option value="">All</option>
+                {categories.map(c => <option value={c}>{c}</option>)}
+              </select>
+            </label>
+          )
+        }
+        {
+          tags.length > 0 && (
+            <label class="flex items-center gap-2">
+              Tag
+              <select id="filter-tag" class="control">
+                <option value="">All</option>
+                {tags.map(t => <option value={t}>{t}</option>)}
+              </select>
+            </label>
+          )
+        }
+        <label class="flex items-center gap-2">
+          Sort
+          <select id="sort-by" class="control">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </label>
+        <span id="posts-count" class="text-muted-foreground"></span>
+      </div>
+
+      <div id="posts-list" class="mt-4">
+        {
+          items.map(item =>
+            item.kind === "post" ? (
+              <ul
+                data-type="post"
+                data-category={item.category}
+                data-tags={item.tags.join("|")}
+                data-date={item.date}
+                data-title={item.title.toLowerCase()}
+              >
+                <Card {...item.post} />
+              </ul>
+            ) : (
+              <ul
+                data-type="series"
+                data-category={item.category}
+                data-tags={item.tags.join("|")}
+                data-date={item.date}
+                data-title={item.title.toLowerCase()}
+              >
+                <li class="my-6">
+                  <a
+                    href={item.href}
+                    class="text-accent inline-block text-lg font-medium decoration-dashed underline-offset-4 hover:underline focus-visible:no-underline"
+                  >
+                    {item.title}
+                  </a>
+                  <p class="text-muted-foreground my-1 text-sm">
+                    <span class="badge">Series</span> {item.parts} parts · Updated{" "}
+                    {formatDate(item.date)}
+                    {item.category && <> · {item.category}</>}
+                  </p>
+                  <p>{item.description}</p>
+                </li>
+              </ul>
+            )
+          )
+        }
+      </div>
+
+      <p id="posts-empty" class="text-muted-foreground" hidden>
+        Nothing matches these filters.
+      </p>
+    </div>
   </Main>
-
-  <Pagination {page} />
-
-  <Footer noMarginTop={page.lastPage > 1} />
+  <Footer />
 </Layout>
+
+<style>
+  .pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 1rem;
+    font-size: 0.9rem;
+  }
+  .pill[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--muted);
+  }
+  .control {
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    padding: 0.2rem 0.5rem;
+    background: var(--background);
+    color: var(--foreground);
+  }
+  .badge {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 0.25rem;
+    padding: 0 0.35rem;
+    font-size: 0.75rem;
+  }
+</style>
+
+<script>
+  // AstroPaper uses view transitions, so set up on every page load.
+  function initPostsIndex() {
+    const root = document.getElementById("posts-index");
+    const list = document.getElementById("posts-list");
+    if (!root || !list) return;
+
+    const items = Array.from(list.children) as HTMLElement[]; // one <ul> per row
+    const typeButtons = Array.from(root.querySelectorAll<HTMLElement>("button[data-type]"));
+    const category = root.querySelector<HTMLSelectElement>("#filter-category");
+    const tag = root.querySelector<HTMLSelectElement>("#filter-tag");
+    const sort = root.querySelector<HTMLSelectElement>("#sort-by");
+    const count = root.querySelector<HTMLElement>("#posts-count");
+    const empty = root.querySelector<HTMLElement>("#posts-empty");
+
+    let type = "all";
+
+    const apply = () => {
+      const cat = category?.value ?? "";
+      const tg = tag?.value ?? "";
+      const order = sort?.value ?? "newest";
+
+      const sorted = [...items].sort((a, b) => {
+        if (order === "title") return (a.dataset.title ?? "").localeCompare(b.dataset.title ?? "");
+        const diff = Number(a.dataset.date) - Number(b.dataset.date);
+        return order === "oldest" ? diff : -diff;
+      });
+
+      let visible = 0;
+      for (const row of sorted) {
+        const match =
+          (type === "all" || row.dataset.type === type) &&
+          (!cat || row.dataset.category === cat) &&
+          (!tg || (row.dataset.tags ?? "").split("|").includes(tg));
+        row.hidden = !match;
+        if (match) visible++;
+        list.appendChild(row); // re-appending in sorted order moves the element
+      }
+
+      typeButtons.forEach(btn =>
+        btn.setAttribute("aria-pressed", String(btn.dataset.type === type))
+      );
+      if (count) count.textContent = `${visible} of ${items.length}`;
+      if (empty) empty.hidden = visible > 0;
+    };
+
+    typeButtons.forEach(btn => {
+      btn.onclick = () => {
+        type = btn.dataset.type ?? "all";
+        apply();
+      };
+    });
+    [category, tag, sort].forEach(control => {
+      if (control) control.onchange = apply;
+    });
+
+    apply();
+  }
+
+  document.addEventListener("astro:page-load", initPostsIndex);
+</script>

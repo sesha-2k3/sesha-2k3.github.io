@@ -11,6 +11,8 @@ tags:
   - llm
   - evaluation
 description: "Precision, recall, MRR, and nDCG computed by hand and in code, the nDCG mistake that hides missed chunks, and whether 82% vs 78% accuracy is a real difference."
+series: rag-from-scratch
+seriesOrder: 4
 ---
 
 **RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · **Part 4: Evaluating retrieval** · [Part 5: BM25](/posts/rag-05-bm25/)

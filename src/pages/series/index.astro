@@ -1,0 +1,21 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import SeriesList from "@/components/SeriesList.astro";
+import config from "@/config";
+---
+
+<Layout
+  title={`Series | ${config.site.title}`}
+  description="Multi-part series that build a topic up step by step."
+>
+  <Header />
+  <Breadcrumb />
+  <Main pageTitle="Series" pageDesc="Multi-part series that build a topic up step by step.">
+    <SeriesList showHeading={false} />
+  </Main>
+  <Footer />
+</Layout>
