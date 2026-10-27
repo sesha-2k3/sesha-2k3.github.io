@@ -13,7 +13,7 @@ tags:
 description: "Precision, recall, MRR, and nDCG computed by hand and in code, the nDCG mistake that hides missed chunks, and whether 82% vs 78% accuracy is a real difference."
 ---
 
-**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · **Part 4: Evaluating retrieval** · Part 5: BM25 (coming soon)
+**RAG from Scratch series:** [Part 0: Overview](/posts/rag-00-overview/) · [Part 1: Chunking](/posts/rag-01-chunking/) · [Part 2: Embeddings, tokens, and metadata](/posts/rag-02-embeddings/) · [Part 3: The query-time flow](/posts/rag-03-query-flow/) · **Part 4: Evaluating retrieval** · [Part 5: BM25](/posts/rag-05-bm25/)
 
 ## Is 82% better than 78%?
 
@@ -345,4 +345,4 @@ Full code: [`retrieval_metrics_scratch.py`](https://github.com/sesha-2k3/rag-scr
 
 Want to test yourself? The repo's [evaluation quiz](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/part-04/quizzes/02-evaluation.md) covers this part.
 
-**Next:** Part 5: BM25 (coming soon)
+**Next:** [Part 5: BM25](/posts/rag-05-bm25/)
