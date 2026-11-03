@@ -176,14 +176,13 @@ The table also shows what caching can't fix. It cut prefill by 87%, but decode a
 
 ## Run it yourself
 
-<!-- TODO: link the companion repo once the scripts are pushed -->
-
-The simulation needs only Python, plus matplotlib if you want the chart:
+From the root of the [REPO](https://github.com/sesha-2k3/rag-scratch-to-speciality/tree/v1) repo:
 
 ```bash
-python3 agent_gpu_sim.py
-python3 agent_gpu_sim.py --cache
-python3 agent_gpu_sim.py --plot sim.png
+uv sync
+uv run python code/agents_gpu/agent_gpu_sim.py
+uv run python code/agents_gpu/agent_gpu_sim.py --cache
+uv run python code/agents_gpu/agent_gpu_sim.py --plot sim.png
 ```
 
 The simulation is deterministic, so your output should match the table above exactly.
@@ -198,6 +197,7 @@ python3 agent_gpu_ollama.py
 python3 agent_gpu_ollama.py --bust-cache --plot real.png
 ```
 
+Full code: [`agent_gpu_sim.py`](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/v1/code/agents_gpu/agent_gpu_sim.py) · [`agent_gpu_ollama.py`](https://github.com/sesha-2k3/rag-scratch-to-speciality/blob/v1/code/agents_gpu/agent_gpu_ollama.py)
 The tools in this script are fake (`time.sleep` and canned text), so every run sends the same prompts and you're measuring only the serving side. Your timings will differ from mine depending on your Mac, but the shape should not: flat-ish prefill in the default run, steadily climbing prefill with `--bust-cache`.
 
 ## Takeaways
